@@ -1,0 +1,55 @@
+@import controllers.Application.OsmObject
+@(message: String, items: List[OsmObject])
+
+@main("Welcome to Play") {
+
+    <script type="text/javascript">
+
+        $(document).ajaxStart(function () {
+            $('#ajaxBusy').show();
+          }).ajaxStop(function () {
+            $('#ajaxBusy').hide();
+          });
+
+        function callOverpass(id) {
+            $.ajax({
+                  type: "POST",
+                  url: "http://overpass-api.de/api/interpreter",
+                  data: "[timeout:6000]; area("+id+"); (._;.boundaryarea; )->.boundaryarea; rel(pivot.boundaryarea); out geom;",
+                  success: function(data){success(data)},
+                  dataType: "xml"
+                });
+            }
+
+        function success(data) {
+            var geojsonObject = osmtogeojson(data);
+            $("#overpass_result").empty().append(JSON.stringify(geojsonObject))
+          }
+
+
+    </script>
+
+    <table>
+        <tr>
+            <th>OSM-ID</th>
+            <th>Display Name</th>
+            <th>Class</th>
+            <th>Type</th>
+            <th>Area-Id</th>
+        </tr>
+        @for(item <- items) {
+            <tr>
+                <td>@item.osmId</td>
+                <td>@item.displayName</td>
+                <td>@item.osmClass</td>
+                <td>@item.osmType</td>
+                <td><a href="#" onclick="callOverpass(@item.areaId)">@item.areaId</a></td>
+            </tr>
+        }
+    </table>
+
+    <div id="ajaxBusy"><img src="@routes.Assets.at("images/ajax-loader.gif")"/></div>
+
+    <div id="overpass_result"></div>
+
+}

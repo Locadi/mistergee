@@ -1,0 +1,9 @@
+#ajaxBusy {
+    display: none;
+    margin: 0px 0px 0px -50px; /* left margin is half width of the div, to centre it */
+    padding: 30px 10px 10px 10px;
+    position: relative;
+    width: 500px;
+    height: 150px;
+    text-align: center;
+}
