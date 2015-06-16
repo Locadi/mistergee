@@ -6,6 +6,8 @@
     <script type="text/javascript">
         var map;
 
+        var vectorLayer;
+
 
     $(document).ready(function() {
         map = new ol.Map({
@@ -52,11 +54,15 @@
 
         geom.transform('EPSG:4326', 'EPSG:3857');
 
+        if (vectorLayer) {
+            map.removeLayer(vectorLayer);
+        }
+
         var vectorSource = new ol.source.Vector({
           features: features
         });
 
-        var vectorLayer = new ol.layer.Vector({
+        vectorLayer = new ol.layer.Vector({
           source: vectorSource
         });
 
