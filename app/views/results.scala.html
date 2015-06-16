@@ -4,28 +4,69 @@
 @main("Welcome to Play") {
 
     <script type="text/javascript">
+        var map;
 
-        $(document).ajaxStart(function () {
-            $('#ajaxBusy').show();
-          }).ajaxStop(function () {
-            $('#ajaxBusy').hide();
-          });
 
-        function callOverpass(id) {
-            $.ajax({
-                  type: "POST",
-                  url: "http://overpass-api.de/api/interpreter",
-                  data: "[timeout:6000]; area("+id+"); (._;.boundaryarea; )->.boundaryarea; rel(pivot.boundaryarea); out geom;",
-                  success: function(data){success(data)},
-                  dataType: "xml"
-                });
-            }
+    $(document).ready(function() {
+        map = new ol.Map({
+          layers: [
+            new ol.layer.Tile({
+              source: new ol.source.OSM()
+            })
+          ],
+          target: 'map',
+          controls: ol.control.defaults({
+            attributionOptions: ({
+              collapsible: false
+            })
+          }),
+          view: new ol.View({
+            center: [0, 0],
+            zoom: 2
+          })
+        });
+     });
 
-        function success(data) {
-            var geojsonObject = osmtogeojson(data);
-            $("#overpass_result").empty().append(JSON.stringify(geojsonObject))
-          }
+      $(document).ajaxStart(function () {
+        $('#ajaxBusy').show();
+      }).ajaxStop(function () {
+        $('#ajaxBusy').hide();
+      });
 
+      function callOverpass(osmId, areaId) {
+        $.ajax({
+              type: "POST",
+              url: "http://overpass-api.de/api/interpreter",
+              data: "[timeout:6000]; area("+areaId+"); (._;.boundaryarea; )->.boundaryarea; rel(pivot.boundaryarea); out geom;",
+              success: function(data){success(osmId, data)},
+              dataType: "xml"
+            });
+        }
+
+      function success(id, data) {
+        var geojson = osmtogeojson(data);
+
+        var features = (new ol.format.GeoJSON()).readFeatures(geojson, {projection: 'EPSG:4326'});
+
+        var geom = features[0].getGeometry();
+
+        geom.transform('EPSG:4326', 'EPSG:3857');
+
+        var vectorSource = new ol.source.Vector({
+          features: features
+        });
+
+        var vectorLayer = new ol.layer.Vector({
+          source: vectorSource
+        });
+
+        map.addLayer(vectorLayer)
+
+        var transformedGeojson = (new ol.format.GeoJSON()).writeGeometry(geom);
+
+        $('#overpass_result').empty().append($('<a/>').attr('href','data:application/json,'+transformedGeojson).text('Click to download '+id+'.json').attr('download', id+'.json'));
+
+      }
 
     </script>
 
@@ -43,7 +84,7 @@
                 <td>@item.displayName</td>
                 <td>@item.osmClass</td>
                 <td>@item.osmType</td>
-                <td><a href="#" onclick="callOverpass(@item.areaId)">@item.areaId</a></td>
+                <td><a href="#" onclick="callOverpass(@item.osmId, @item.areaId)">@item.areaId</a></td>
             </tr>
         }
     </table>
@@ -51,5 +92,7 @@
     <div id="ajaxBusy"><img src="@routes.Assets.at("images/ajax-loader.gif")"/></div>
 
     <div id="overpass_result"></div>
+
+    <div id="map" class="map"></div>
 
 }

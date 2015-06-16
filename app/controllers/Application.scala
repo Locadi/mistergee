@@ -62,7 +62,7 @@ object Application extends Controller {
             OsmObject(
               osmId,
               item.\("display_name").as[String],
-              if (areaId >= 3700000000L) "N/A" else areaId.toString,
+              if (areaId >= 3700000000L) "" else areaId.toString,
               item.\("class").asOpt[String].getOrElse("N/A"),
               item.\("type").asOpt[String].getOrElse("N/A"))
         }.toList
