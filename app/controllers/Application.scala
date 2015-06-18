@@ -22,12 +22,12 @@ object Application extends Controller {
     val q: String = form.bindFromRequest.get
     collect(q).map {
       items =>
-        Ok(views.html.results(items))
+        Ok(views.html.nominatim(Some(items)))
     }
   }
 
   def nominatim = Action {
-    Ok(views.html.nominatim())
+    Ok(views.html.nominatim(None))
   }
 
   def ags = Action {

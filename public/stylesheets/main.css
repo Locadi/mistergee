@@ -1,4 +1,4 @@
-#ajaxBusy {
+#ajax_busy {
     display: none;
     margin: 0px 0px 0px -50px; /* left margin is half width of the div, to centre it */
     padding: 30px 10px 10px 10px;
@@ -22,7 +22,7 @@
     padding: 5px;
 }
 
-#overpass_result {
+#geojson_link {
     text-align: right;
     padding: 5px;
 }

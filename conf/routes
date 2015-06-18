@@ -6,7 +6,7 @@
 GET         /                    controllers.Application.ags
 GET         /nominatim           controllers.Application.nominatim
 
-POST        /                    controllers.Application.query
+POST        /nominatim           controllers.Application.query
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file        controllers.Assets.at(path="/public", file)

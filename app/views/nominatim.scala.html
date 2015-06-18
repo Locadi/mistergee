@@ -1,6 +1,18 @@
-@()
+@import controllers.Application.OsmObject
+@(items: Option[List[OsmObject]])
 
 @main("MisterGEE") {
+
+    <script type="text/javascript">
+
+        $(document).ready(initMap);
+
+          function clickAction(id) {
+            var query = createOverpassQuery(id, 'osmId');
+            callOverpass(query, id, updateUI);
+         }
+
+    </script>
 
     <h1>MisterGEE</h1>
     <form method="POST">
@@ -9,5 +21,54 @@
     </form>
 
     <p><a href='@routes.Application.ags()'>Search by AGS</a></p>
+
+    @items match {
+        case Some(someItems) if someItems.isEmpty => {
+                <h1>Nothing found</h1>
+                <a href="javascript:history.back();">back</a>
+            }
+        case Some(someItems) => {
+                <table>
+                    <colgroup>
+                        <col width="65"/>
+                        <col width="*"/>
+                        <col width="50"/>
+                        <col width="50"/>
+                        <col width="85"/>
+                        <col width="85"/>
+                        <col width="35"/>
+                    </colgroup>
+                    <tr>
+                        <th>OSM-ID</th>
+                        <th>Display Name</th>
+                        <th>Lat</th>
+                        <th>Lon</th>
+                        <th>Class</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                    @for(item <- someItems) {
+                        <tr>
+                            <td>@item.osmId</td>
+                            <td>@item.displayName</td>
+                            <td>@item.lat</td>
+                            <td>@item.lon</td>
+                            <td>@item.osmClass</td>
+                            <td>@item.osmType</td>
+                            <td><a href="#" onclick="clickAction(@item.osmId)">Show</a></td>
+                        </tr>
+                    }
+                </table>
+        }
+        case None => {
+            <p>Click "find" to see results here</p>
+        }
+    }
+
+        <div id="map" class="map"></div>
+
+        <div id="ajax_busy"><img src="@routes.Assets.at("images/ajax-loader.gif")"/></div>
+
+        <div id="geojson_link"></div>
 
 }

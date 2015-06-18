@@ -1,107 +1,31 @@
 @()
 
-@main("MisterGEE") {
+    @main("MisterGEE") {
 
     <script type="text/javascript">
 
-        var map;
+        $(document).ready(initMap);
 
-        var vectorLayer;
-
-        $(document).ready(function() {
-            map = new ol.Map({
-                layers: [
-                    new ol.layer.Tile({
-                      source: new ol.source.OSM()
-                    })
-                  ],
-                  controls: ol.control.defaults({
-                    attributionOptions:  ({
-                      collapsible: false
-                    })
-                  }),
-                  target: 'map',
-                  view: new ol.View({
-                    center: [0, 0],
-                    zoom: 2
-                  })
-            });
-         });
-
-         function callOverpass(ags) {
-                var data = "[timeout:6000];rel[\"de:amtlicher_gemeindeschluessel\"=\"" + ags + "\"];(._;>;);out;";
-                $('#overpass_result').empty();
-                $.ajax({
-                  type: "POST",
-                  url: "http://overpass-api.de/api/interpreter",
-                  data: data,
-                  success: function(data){parseOsmData(ags, data)},
-                  dataType: "xml",
-                  error: function (xhr, ajaxOptions, thrownError) {
-                    alert('Error with status: '+ xhr.status + ', '+ thrownError);
-                    }
-                  });
-            }
-
-
-          function parseOsmData(ags, data) {
-            try {
-                var geojson = osmtogeojson(data);
-
-                var features = (new ol.format.GeoJSON()).readFeatures(geojson, {projection: 'EPSG:4326'});
-
-                features.splice(1, features.length-1)
-
-                var geom = features[0].getGeometry();
-
-                geom.transform('EPSG:4326', 'EPSG:3857');
-
-                if (vectorLayer) {
-                    map.removeLayer(vectorLayer);
-                }
-
-                var vectorSource = new ol.source.Vector({
-                  features: features
-                });
-
-                vectorLayer = new ol.layer.Vector({
-                  source: vectorSource
-                });
-
-                map.addLayer(vectorLayer);
-
-                map.getView().fitExtent(vectorSource.getExtent(), map.getSize());
-
-                var transformedGeojson = (new ol.format.GeoJSON()).writeGeometry(geom);
-
-                $('#overpass_result').empty().append('<span>GeoJSON file for region ' + ags + ' is ready for download: </span>')
-                $('#overpass_result').append($('<a/>').attr('href','data:application/json,'+transformedGeojson).text('Download').attr('download', 'reg'+ags+'.json').attr('class', 'button'));
-             } catch(e) {
-                alert('Failed to parse OSM data: '+data+", with error: "+e)
-             }
-          }
-
-          $(document).ajaxStart(function () {
-            $('#ajaxBusy').show();
-          }).ajaxStop(function () {
-            $('#ajaxBusy').hide();
-          });
+         function clickAction(id) {
+            var query = createOverpassQuery(id, 'ags');
+            callOverpass(query, id, updateUI);
+         }
 
     </script>
 
 
-    <h1>MisterGEE</h1>
-    AGS: <input type="text" id="ags" />
-    <a href="#" onclick = "callOverpass($('#ags').val())" class="button">Find</a>
+        <h1>MisterGEE</h1>
+        AGS: <input type="text" id="ags" />
+        <a href="#" onclick = "clickAction($('#ags').val())" class="button">Find</a>
 
-    <p>Find AGS (Amtlicher Gemeindeschlüssel) <a href="http://www.statistikportal.de/statistik-portal/gemeindeverz.asp">here</a></p>
+        <p>Find AGS (Amtlicher Gemeindeschlüssel) <a href="http://www.statistikportal.de/statistik-portal/gemeindeverz.asp">here</a></p>
 
-    <p><small><a href='@routes.Application.nominatim()'>Search by Name</a></small></p>
+        <p><small><a href='@routes.Application.nominatim()'>Search by Name</a></small></p>
 
-    <div id="map" class="map"></div>
+        <div id="map" class="map"></div>
 
-    <div id="overpass_result"></div>
+        <div id="geojson_link"></div>
 
-    <div id="ajaxBusy"><img src="@routes.Assets.at("images/ajax-loader.gif")"/></div>
+        <div id="ajax_busy"><img src="@routes.Assets.at("images/ajax-loader.gif")"/></div>
 
-}
+    }
