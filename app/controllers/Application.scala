@@ -26,12 +26,14 @@ object Application extends Controller {
     }
   }
 
-  def index = Action {
-    Ok(views.html.index())
+  def nominatim = Action {
+    Ok(views.html.nominatim())
   }
 
+  def ags = Action {
+    Ok(views.html.ags())
+  }
 
-  case class OsmObject(osmId: String, displayName: String, osmClass: String, osmType: String, lat: String, lon: String)
 
   def collect(q: String): Future[List[OsmObject]] = {
     WS.url("http://nominatim.openstreetmap.org/search").withQueryString("q" -> q, "format" -> "json").get().map {
@@ -55,5 +57,6 @@ object Application extends Controller {
     }
   }
 
+  case class OsmObject(osmId: String, displayName: String, osmClass: String, osmType: String, lat: String, lon: String)
 
 }

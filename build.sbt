@@ -1,8 +1,8 @@
-name := "RegionAdmin"
+name := "mistergee"
 
 version := "1.0"
 
-lazy val `regionadmin` = (project in file(".")).enablePlugins(PlayScala)
+lazy val `mistergee` = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.1"
 
