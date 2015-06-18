@@ -52,9 +52,3 @@ function createGeoJSONLink(features, id) {
         .append('<span>GeoJSON file for identifier <strong>' + id + '</strong> is ready for download: </span>')
         .append($('<a/>').attr('href', 'data:application/json,' + transformedGeojson).text('Download').attr('download', id + '.json').attr('class', 'button'));
 }
-
-$(document).ajaxStart(function () {
-    $('#ajax_busy').show();
-}).ajaxStop(function () {
-    $('#ajax_busy').hide();
-});

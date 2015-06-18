@@ -12,6 +12,12 @@
             callOverpass(query, id, updateUI);
          }
 
+         $(document).ajaxStart(function () {
+            $('#ajax_busy').show();
+        }).ajaxStop(function () {
+            $('#ajax_busy').hide();
+        });
+
     </script>
 
     <h1>MisterGEE</h1>
